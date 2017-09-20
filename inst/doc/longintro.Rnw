@@ -474,7 +474,7 @@ temp
 The surrogate sends \Sexpr{sum(diag(temp))} of the \Sexpr{sum(temp)}
 observations the correct direction for an agreement of
 \Sexpr{round(sum(diag(temp))/sum(temp), 3)}.
-The majority rule gets \Sexpr{zz <-max(cfit$frame$n[2:3]); zz} correct, and
+%The majority rule gets \Sexpr{zz <-max(cfit$frame$n[2:3]); zz} correct, and
 the adjusted agreement is (\Sexpr{sum(diag(temp))} - \Sexpr{zz})/
 (\Sexpr{sum(temp)} - \Sexpr{zz}).
 

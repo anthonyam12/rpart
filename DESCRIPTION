@@ -21,7 +21,7 @@ ByteCompile: yes
 Note: Maintainers are not available to give advice on using a package
         they did not author.
 NeedsCompilation: yes
-Packaged: 2017-03-12 21:36:08 UTC; ripley
+Packaged: 2017-09-20 04:28:22 UTC; amorast
 Author: Terry Therneau [aut],
   Beth Atkinson [aut],
   Brian Ripley [aut, trl, cre] (author of initial R port)

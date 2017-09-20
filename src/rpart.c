@@ -42,7 +42,6 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
       SEXP parms2, SEXP xvals2, SEXP xgrp2,
       SEXP ymat2, SEXP xmat2, SEXP wt2, SEXP ny2, SEXP cost2)
 {
-
     pNode tree;          /* top node of the tree */
     char *errmsg;
     int i, j, k, n;
@@ -62,7 +61,14 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
      * Return objects for R -- end in "3" to avoid overlap with internal names
      */
     SEXP which3, cptable3, dsplit3, isplit3, csplit3 = R_NilValue, /* -Wall */
-	dnode3, inode3;
+	dnode3, inode3, test;
+    
+    /** SOURCE CODE EDITING TEST **/
+    test = PROTECT(allocVector(INTSXP, 2)); // allocate some memory R-style
+    INTEGER(test)[0] = 27;           // set some values R-Style
+    INTEGER(test)[1] = 101010;         //  "   "      "      "
+    printf("\n\nHello World!\n\n");                         // print test
+    
 
     /* work arrays for the return process */
     int nodecount, catcount, splitcount;
@@ -323,7 +329,7 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     }
 
     /* Create the output list */
-    int nout = catcount > 0 ? 7 : 6;
+    int nout = catcount > 0 ? 7+1 : 6+1;
     SEXP rlist = PROTECT(allocVector(VECSXP, nout));
     SEXP rname = allocVector(STRSXP, nout);
     setAttrib(rlist, R_NamesSymbol, rname);
@@ -338,12 +344,19 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     SET_VECTOR_ELT(rlist, 4, dnode3);
     SET_STRING_ELT(rname, 4, mkChar("dnode"));
     SET_VECTOR_ELT(rlist, 5, inode3);
+    //SET_VECTOR_ELT(rlist, 5, 100);
     SET_STRING_ELT(rname, 5, mkChar("inode"));
-    if (catcount > 0) {
+/*    if (catcount > 0) {
 	SET_VECTOR_ELT(rlist, 6, csplit3);
 	SET_STRING_ELT(rname, 6, mkChar("csplit"));
     }
-
+*/	
+    SET_VECTOR_ELT(rlist, 6, test);
+    SET_STRING_ELT(rname, 6, mkChar("test"));
+    if (catcount > 0) {
+	SET_VECTOR_ELT(rlist, 7, csplit3);
+	SET_STRING_ELT(rname, 7, mkChar("csplit"));
+    }
     UNPROTECT(1 + nout);
     return rlist;
 }

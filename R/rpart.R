@@ -281,6 +281,7 @@ rpart <-
 	ans$wt <- wt
     }
     ans$ordered <- isord
+ans$test <- rpfit
     if (!is.null(attr(m, "na.action"))) ans$na.action <- attr(m, "na.action")
     if (!is.null(xlevels)) attr(ans, "xlevels") <- xlevels
     if (method == "class") attr(ans, "ylevels") <- init$ylevels
