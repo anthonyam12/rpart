@@ -231,7 +231,7 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     }
     i = (*rp_init) (n, rp.ydata, maxcat, &errmsg, parms, &rp.num_resp, 1, wt);
     if (i > 0)
-	      error(errmsg);
+        error(errmsg);
 
     nodesize = sizeof(Node) + (rp.num_resp - 20) * sizeof(double);
     tree = (pNode) ALLOC(1, nodesize);
@@ -242,6 +242,26 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
     tree->complexity = tree->risk;
     rp.alpha = rp.complexity * tree->risk;
+	
+    int delayDepth = 2; // size of tree we want to build before choosing best split(s)
+    if(delayedChoice) 
+    {
+	// Should be able to use some Rpart functions here (partition, split, etc.)
+	// We're essentially building a small tree and choosing the best before finishing
+	// off the tree, it sounds like this could be a parameter for Rpart (delayDepth)
+	    
+        // Create one tree for each feature in the dataset (split first node)
+	// (This is done above (rp_eval I think)
+	
+	// call the partition function to with '2' as the first param, may need to add
+	// a new stopping criteria (base case) to the recursive function to retun when 
+	// the depth == passed val
+	
+	// determine how well each tree works, use the best one
+	    
+	// call the partition function outside of this statement with first param = 3
+	// to finish the tree.
+    }
 
     /*
      * Do the basic tree
