@@ -63,7 +63,7 @@ EXTERN struct {
     int usesurrogate;
     int num_unique_cp;
     int min_node;               /* minimum size for any terminal node */
-    int min_split;              /*minimum size before we attempt a split */
+    int min_split;              /* minimum size before we attempt a split */
     int num_resp;               /*length of the response vector */
     int sur_agree;              /*0 =  my style, 1=CART style */
     int maxnode;                /*controls the maximum depth of the tree */

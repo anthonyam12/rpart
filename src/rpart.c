@@ -37,10 +37,10 @@
 #include "func_table.h"
 #include "rpartproto.h"
 
-SEXP
-rpart(SEXP ncat2, SEXP method2, SEXP opt2,
+SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
       SEXP parms2, SEXP xvals2, SEXP xgrp2,
-      SEXP ymat2, SEXP xmat2, SEXP wt2, SEXP ny2, SEXP cost2)
+      SEXP ymat2, SEXP xmat2, SEXP wt2, SEXP ny2, 
+      SEXP cost2)
 {
     pNode tree;          /* top node of the tree */
     char *errmsg;
@@ -67,7 +67,6 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     test = PROTECT(allocVector(INTSXP, 2)); // allocate some memory R-style
     INTEGER(test)[0] = 27;           // set some values R-Style
     INTEGER(test)[1] = 101010;         //  "   "      "      "
-    printf("\n\nHello World, from Manjaro!\n\n");                         // print test
     
 
     /* work arrays for the return process */
@@ -77,6 +76,7 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     int **ccsplit;
     double scale;
     CpTable cp;
+    int delayedChoice = 0;
 
     ncat = INTEGER(ncat2);
     xgrp = INTEGER(xgrp2);
@@ -86,23 +86,18 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     /*
      * initialize the splitting functions from the function table
      */
-    int delayedChoice = 0;
     if (asInteger(method2) <= NUM_METHODS) 
     {
       	i = asInteger(method2) - 1;
-    	  rp_init = func_table[i].init_split;
+    	rp_init = func_table[i].init_split;
       	rp_choose = func_table[i].choose_split;
       	rp_eval = func_table[i].eval;
       	rp_error = func_table[i].error;
-    	  rp.num_y = asInteger(ny2);
-    } 
-    else if (asInteger(method2) == 5) /** Added to special case our function -- probably won't need this**/
-    {
-        delayedChoice = 1;
+    	rp.num_y = asInteger(ny2);
     } 
     else 
     {
-	      error(_("Invalid value for 'method'"));
+	    error(_("Invalid value for 'method'"));
     }
     
     
@@ -124,7 +119,7 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     rp.maxsur = (int) dptr[4];
     rp.usesurrogate = (int) dptr[5];
     rp.sur_agree = (int) dptr[6];
-    rp.maxnode = (int) pow((double) 2.0, (double) dptr[7]) - 1;
+    rp.maxnode = 7;//(int) pow((double) 2.0, (double) dptr[7]) - 1;
     rp.n = nrows(xmat2);
     n = rp.n;                   /* I get tired of typing "rp.n" 100 time below */
     rp.nvar = ncols(xmat2);
@@ -172,22 +167,23 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     maxcat = 0;
     for (i = 0; i < rp.nvar; i++) 
     {
-	      rp.sorts[i] = rp.sorts[0] + i * n;
-	      for (k = 0; k < n; k++) 
-	      {
-	          if (!R_FINITE(rp.xdata[i][k])) 
-    	      {
-	  	          rp.tempvec[k] = -(k + 1);       /* this variable is missing */
-		            rp.xtemp[k] = 0;        /* avoid weird numerics in S's NA */
-	          } 
-	          else 
+	    rp.sorts[i] = rp.sorts[0] + i * n;
+        
+	    for (k = 0; k < n; k++) 
+	    {
+	        if (!R_FINITE(rp.xdata[i][k])) 
+    	    {
+	  	        rp.tempvec[k] = -(k + 1);       /* this variable is missing */
+		        rp.xtemp[k] = 0;        /* avoid weird numerics in S's NA */
+	        } 
+	        else 
   	        {
-	    	        rp.tempvec[k] = k;
-            		rp.xtemp[k] = rp.xdata[i][k];
-	          }
-	      }
-	      if (ncat[i] == 0)
-	          mysort(0, n - 1, rp.xtemp, rp.tempvec);
+	    	    rp.tempvec[k] = k;
+            	rp.xtemp[k] = rp.xdata[i][k];
+	        }
+	    }
+	    if (ncat[i] == 0)
+	        mysort(0, n - 1, rp.xtemp, rp.tempvec);
       	else if (ncat[i] > maxcat)
 	          maxcat = ncat[i];
         for (k = 0; k < n; k++)
@@ -238,29 +234,47 @@ rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     memset(tree, 0, nodesize);
     tree->num_obs = n;
     tree->sum_wt = temp;
-
     (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
     tree->complexity = tree->risk;
     rp.alpha = rp.complexity * tree->risk;
-	
-    int delayDepth = 2; // size of tree we want to build before choosing best split(s)
+    
+    // MAXDEPTH (splits to delay) -- should be passed in by user (maxdepth param for rpart)
     if(delayedChoice) 
     {
-	// Should be able to use some Rpart functions here (partition, split, etc.)
-	// We're essentially building a small tree and choosing the best before finishing
-	// off the tree, it sounds like this could be a parameter for Rpart (delayDepth)
-	    
+        printf("yellow!");
+    	// Should be able to use some Rpart functions here (partition, split, etc.)
+    	// We're essentially building a small tree and choosing the best before finishing
+    	// off the tree. 
+    	// for feature(tree) in dataset:
+    	
+        
+        // gets best split, if not found exits (from partition.c)
+        /*bsplit(me, n1, n2);
+        if (!me->primary) {
+            /*
+             * This is rather rare -- but I couldn't find a split worth doing
+             */
+        /*    me->complexity = rp.alpha;
+            me->leftson = (pNode) NULL;
+            me->rightson = (pNode) NULL;
+            me->primary = (pSplit) NULL;
+            me->surrogate = (pSplit) NULL;
+            *sumrisk = me->risk;
+            return 0;
+        }
+    	*/ 
+        
         // Create one tree for each feature in the dataset (split first node)
-	// (This is done above (rp_eval I think)
-	
-	// call the partition function to with '2' as the first param, may need to add
-	// a new stopping criteria (base case) to the recursive function to retun when 
-	// the depth == passed val
-	
-	// determine how well each tree works, use the best one
-	    
-	// call the partition function outside of this statement with first param = 3
-	// to finish the tree.
+    	// (This is done above (rp_eval I think))
+    	
+    	// call the partition function to with '2' as the first param, may need to add
+    	// a new stopping criteria (base case) to the recursive function to retun when 
+    	// the depth == passed val
+    	
+    	// determine how well each tree works, use the best one
+    	    
+    	// call the partition function outside of this statement with first param = 3
+    	// to finish the tree.
     }
 
     /*

@@ -2,7 +2,7 @@
 #  The recursive partitioning function, for R
 #
 rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
-             model = FALSE, x = FALSE, y = TRUE, parms, control, cost, ...) {
+             model = FALSE, x = FALSE, y = TRUE, parms, control, cost, delayed = FALSE, ...) {
   Call <- match.call()
   if (is.data.frame(model)) {
       m <- model
@@ -56,7 +56,7 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
     #	numy <- init$numy
 	  parms <- init$parms
   } else {
-	  method.int <- pmatch(method, c("anova", "poisson", "class", "exp"))
+	method.int <- pmatch(method, c("anova", "poisson", "class", "exp"))
 
   	if (is.na(method.int)) stop("Invalid method")
 	  
@@ -151,9 +151,15 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
   storage.mode(X) <- "double"
   storage.mode(wt) <- "double"
   temp <- as.double(unlist(init$parms))
+  del_int <- 9999
+  if(delayed) {
+      del_int = 1
+  } else {
+      del_int = 0
+  }
   if (!length(temp)) temp <- 0    # if parms is NULL pass a dummy
   rpfit <- .Call(C_rpart,
-                 ncat = as.integer(cats * !isord),
+                  ncat = as.integer(cats * !isord),
                   method = as.integer(method.int),
                   as.double(unlist(controls)),
                   temp,
@@ -163,7 +169,8 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
                   X,
                   wt,
                   as.integer(init$numy),
-                  as.double(cost))
+                  as.double(cost))#,
+                  #as.integer(del_int))
 
   nsplit <- nrow(rpfit$isplit) # total number of splits, primary and surrogate
   ## total number of categorical splits

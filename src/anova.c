@@ -36,15 +36,15 @@ anovass(int n, double *y[], double *value, double *risk, double *wt)
     double mean, ss;
 
     for (i = 0; i < n; i++) {
-	temp += *y[i] * wt[i];
-	twt += wt[i];
+    	temp += *y[i] * wt[i];
+    	twt += wt[i];
     }
     mean = temp / twt;
 
     ss = 0;
     for (i = 0; i < n; i++) {
-	temp = *y[i] - mean;
-	ss += temp * temp * wt[i];
+    	temp = *y[i] - mean;
+    	ss += temp * temp * wt[i];
     }
 
     *value = mean;

@@ -13,8 +13,7 @@
 #include "node.h"
 #include "rpartproto.h"
 
-int
-partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
+int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
 {
     pNode me;
     double tempcp;
@@ -29,59 +28,61 @@ partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     me = splitnode;
     n = n2 - n1;                /* total number of observations */
 
-    if (nodenum > 1) {
-	twt = 0;
-	k = 0;
-	for (i = n1; i < n2; i++) {
-	    j = rp.sorts[0][i]; /* any variable would do, use first */
-	    if (j < 0)
-		j = -(1 + j);   /* if missing, value = -(1+ true index) */
-	    rp.wtemp[k] = rp.wt[j];
-	    rp.ytemp[k] = rp.ydata[j];
-	    twt += rp.wt[j];
-	    k++;
-	}
-	(*rp_eval) (n, rp.ytemp, me->response_est, &(me->risk), rp.wtemp);
-	me->num_obs = n;
-	me->sum_wt = twt;
-	tempcp = me->risk;
-	if (tempcp > me->complexity)
-	    tempcp = me->complexity;
+    if (nodenum > 1) 
+    {
+    	twt = 0;
+    	k = 0;
+    	for (i = n1; i < n2; i++) {
+    	    j = rp.sorts[0][i]; /* any variable would do, use first */
+    	    if (j < 0)
+    		j = -(1 + j);   /* if missing, value = -(1+ true index) */
+    	    rp.wtemp[k] = rp.wt[j];
+    	    rp.ytemp[k] = rp.ydata[j];
+    	    twt += rp.wt[j];
+    	    k++;
+    	}
+    	(*rp_eval) (n, rp.ytemp, me->response_est, &(me->risk), rp.wtemp);
+    	me->num_obs = n;
+    	me->sum_wt = twt;
+    	tempcp = me->risk;
+    	if (tempcp > me->complexity)
+    	    tempcp = me->complexity;
     } else
-	tempcp = me->risk;
+	    tempcp = me->risk;
 
     /*
      * Can I quit now ?
      */
-    if (me->num_obs < rp.min_split || tempcp <= rp.alpha ||
-	nodenum > rp.maxnode) {
-	me->complexity = rp.alpha;
-	*sumrisk = me->risk;
-	/*
-	 * make sure the split doesn't have random pointers to somewhere
-	 * i.e., don't trust that whoever allocated memory set it to zero
-	 */
-	me->leftson = (pNode)  NULL;
-	me->rightson = (pNode) NULL;
-	me->primary = (pSplit) NULL;
-	me->surrogate = (pSplit) NULL;
-	return 0;
+    if (me->num_obs < rp.min_split || tempcp <= rp.alpha || nodenum > 1) 
+    {
+    	me->complexity = rp.alpha;
+    	*sumrisk = me->risk;
+    	/*
+    	 * make sure the split doesn't have random pointers to somewhere
+    	 * i.e., don't trust that whoever allocated memory set it to zero
+    	 */
+    	me->leftson = (pNode)  NULL;
+    	me->rightson = (pNode) NULL;
+    	me->primary = (pSplit) NULL;
+    	me->surrogate = (pSplit) NULL;
+	    return 0;
     }
+    
     /*
      * Guess I have to do the split
      */
     bsplit(me, n1, n2);
     if (!me->primary) {
-	/*
-	 * This is rather rare -- but I couldn't find a split worth doing
-	 */
-	me->complexity = rp.alpha;
-	me->leftson = (pNode) NULL;
-	me->rightson = (pNode) NULL;
-	me->primary = (pSplit) NULL;
-	me->surrogate = (pSplit) NULL;
-	*sumrisk = me->risk;
-	return 0;
+    	/*
+    	 * This is rather rare -- but I couldn't find a split worth doing
+    	 */
+    	me->complexity = rp.alpha;
+    	me->leftson = (pNode) NULL;
+    	me->rightson = (pNode) NULL;
+    	me->primary = (pSplit) NULL;
+    	me->surrogate = (pSplit) NULL;
+    	*sumrisk = me->risk;
+    	return 0;
     }
 #ifdef DEBUG
     print_tree(me, 2);
