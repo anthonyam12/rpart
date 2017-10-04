@@ -9,13 +9,12 @@
 #include "node.h"
 #include "rpartproto.h"
 
-pSplit
-insert_split(pSplit *listhead, int ncat, double improve, int max)
+pSplit insert_split(pSplit *listhead, int ncat, double improve, int max)
 {
     int nlist;
     pSplit s1, s2, s3 = NULL, s4;
 
-// csplit[0] gets used even for continuous splits.
+    // csplit[0] gets used even for continuous splits.
     if (ncat == 0) ncat = 1; 
     int splitsize = sizeof(Split) + (ncat - 20) * sizeof(int);
 

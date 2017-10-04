@@ -88,18 +88,17 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     print_tree(me, 2);
 #endif
     if (rp.maxsur > 0)
-	surrogate(me, n1, n2);
+	    surrogate(me, n1, n2);
     else
-	me->surrogate = (pSplit) NULL;
-    nodesplit(me, nodenum, n1, n2, &nleft, &nright);
+	    me->surrogate = (pSplit) NULL;
+        nodesplit(me, nodenum, n1, n2, &nleft, &nright);
 
     /*
      * split the leftson
      */
     me->leftson = (pNode) CALLOC(1, nodesize);
     (me->leftson)->complexity = tempcp - rp.alpha;
-    left_split =
-	partition(2 * nodenum, me->leftson, &left_risk, n1, n1 + nleft);
+    left_split = partition(2 * nodenum, me->leftson, &left_risk, n1, n1 + nleft);
 
     /*
      * Update my estimate of cp, and split the right son.
@@ -113,8 +112,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
 
     me->rightson = (pNode) CALLOC(1, nodesize);
     (me->rightson)->complexity = tempcp - rp.alpha;
-    right_split = partition(1 + 2 * nodenum, me->rightson, &right_risk,
-			    n1 + nleft, n1 + nleft + nright);
+    right_split = partition(1 + 2 * nodenum, me->rightson, &right_risk, n1 + nleft, n1 + nleft + nright);
 
     /*
      * Now calculate my actual C.P., which depends on children nodes, and

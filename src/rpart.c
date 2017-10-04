@@ -100,9 +100,6 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
 	    error(_("Invalid value for 'method'"));
     }
     
-    
-    
-
     /*
      * set some other parameters
      */

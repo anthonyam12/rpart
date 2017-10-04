@@ -57,8 +57,7 @@ anovass(int n, double *y[], double *value, double *risk, double *wt)
  *  as possible.  It is not necessary to actually calculate the SS, the
  *  improvement involves only means in the two groups.
  */
-void
-anova(int n, double *y[], double *x, int nclass,
+void anova(int n, double *y[], double *x, int nclass,
       int edge, double *improve, double *split, int *csplit,
       double myrisk, double *wt)
 {
