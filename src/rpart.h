@@ -72,7 +72,8 @@ EXTERN struct {
     int *csplit;
     int *left;
     int *right;
-} rp;
+    int delayed;                // Are we doing delayed splits? [convert this to "how delayed" later]
+} rp, rp2;
 
 EXTERN struct cptable *cptable_tail;
 EXTERN int (*rp_init) ();       /*called to initialize a splitting function */

@@ -2,7 +2,7 @@
 #  The recursive partitioning function, for R
 #
 rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
-             model = FALSE, x = FALSE, y = TRUE, parms, control, cost, delayed = FALSE, ...) {
+             model = FALSE, x = FALSE, y = TRUE, parms, control, cost, ...) {
   Call <- match.call()
   if (is.data.frame(model)) {
       m <- model
@@ -152,11 +152,6 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
   storage.mode(wt) <- "double"
   temp <- as.double(unlist(init$parms))
   del_int <- 9999
-  if(delayed) {
-      del_int = 1
-  } else {
-      del_int = 0
-  }
   if (!length(temp)) temp <- 0    # if parms is NULL pass a dummy
   rpfit <- .Call(C_rpart,
                   ncat = as.integer(cats * !isord),
@@ -169,8 +164,7 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
                   X,
                   wt,
                   as.integer(init$numy),
-                  as.double(cost))#,
-                  #as.integer(del_int))
+                  as.double(cost))
 
   nsplit <- nrow(rpfit$isplit) # total number of splits, primary and surrogate
   ## total number of categorical splits

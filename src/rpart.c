@@ -5,8 +5,8 @@
  *      ncat    = # categories for each var, 0 for continuous variables.
  *      method  = 1 - anova
  *                2 - exponential survival
- *		  3 - classification
- *	          4 - user defined callback
+ *		          3 - classification
+ *	              4 - user defined callback
  *      opt     = vector of options.  Same order as rpart.control, as a vector
  *                   of doubles.
  *      parms   = extra parameters for the split function, e.g. poissoninit
@@ -62,8 +62,7 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
      */
     SEXP which3, cptable3, dsplit3, isplit3, csplit3 = R_NilValue, /* -Wall */
 	       dnode3, inode3, test;
-    
-    /** SOURCE CODE EDITING TEST **/
+
     test = PROTECT(allocVector(INTSXP, 2)); // allocate some memory R-style
     INTEGER(test)[0] = 27;           // set some values R-Style
     INTEGER(test)[1] = 101010;         //  "   "      "      "
@@ -112,11 +111,11 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     {
 	      rp.maxpri = 1;
     }
-    
+    rp.delayed = dptr[9];
     rp.maxsur = (int) dptr[4];
     rp.usesurrogate = (int) dptr[5];
     rp.sur_agree = (int) dptr[6];
-    rp.maxnode = 7;//(int) pow((double) 2.0, (double) dptr[7]) - 1;
+    rp.maxnode = (int) pow((double) 2.0, (double) dptr[7]) - 1;
     rp.n = nrows(xmat2);
     n = rp.n;                   /* I get tired of typing "rp.n" 100 time below */
     rp.nvar = ncols(xmat2);
@@ -234,50 +233,11 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
     tree->complexity = tree->risk;
     rp.alpha = rp.complexity * tree->risk;
-    
-    // MAXDEPTH (splits to delay) -- should be passed in by user (maxdepth param for rpart)
-    if(delayedChoice) 
-    {
-        printf("yellow!");
-    	// Should be able to use some Rpart functions here (partition, split, etc.)
-    	// We're essentially building a small tree and choosing the best before finishing
-    	// off the tree. 
-    	// for feature(tree) in dataset:
-    	
-        
-        // gets best split, if not found exits (from partition.c)
-        /*bsplit(me, n1, n2);
-        if (!me->primary) {
-            /*
-             * This is rather rare -- but I couldn't find a split worth doing
-             */
-        /*    me->complexity = rp.alpha;
-            me->leftson = (pNode) NULL;
-            me->rightson = (pNode) NULL;
-            me->primary = (pSplit) NULL;
-            me->surrogate = (pSplit) NULL;
-            *sumrisk = me->risk;
-            return 0;
-        }
-    	*/ 
-        
-        // Create one tree for each feature in the dataset (split first node)
-    	// (This is done above (rp_eval I think))
-    	
-    	// call the partition function to with '2' as the first param, may need to add
-    	// a new stopping criteria (base case) to the recursive function to retun when 
-    	// the depth == passed val
-    	
-    	// determine how well each tree works, use the best one
-    	    
-    	// call the partition function outside of this statement with first param = 3
-    	// to finish the tree.
-    }
 
     /*
      * Do the basic tree
      */
-    partition(1, tree, &temp, 0, n);
+    partition(1, tree, &temp, 0, n, 0);
     CpTable cptable = (CpTable) ALLOC(1, sizeof(cpTable));
     cptable->cp = tree->complexity;
     cptable->risk = tree->risk;
