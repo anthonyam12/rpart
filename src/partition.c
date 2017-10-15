@@ -91,7 +91,8 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int
 	    surrogate(me, n1, n2);
     else
 	    me->surrogate = (pSplit) NULL;
-        nodesplit(me, nodenum, n1, n2, &nleft, &nright);
+    
+    nodesplit(me, nodenum, n1, n2, &nleft, &nright);
 
     /*
      * split the leftson

@@ -30,7 +30,7 @@ CpTable make_cp_table(pNode me, double parent, int nsplit);
 
 void mysort(int start, int stop, double *x, int *cvec);
 
-void nodesplit(pNode me, int nodenum, int n1, int n2, int *nleft, int *nright);
+void nodesplit(pNode me, int nodenum, int n1, int n2, int *nleft, int *nright );
 
 int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int fromBSplit);
 

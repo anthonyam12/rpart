@@ -114,6 +114,7 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     rp.delayed = dptr[9];
     rp.maxsur = (int) dptr[4];
     rp.usesurrogate = (int) dptr[5];
+    
     rp.sur_agree = (int) dptr[6];
     rp.maxnode = (int) pow((double) 2.0, (double) dptr[7]) - 1;
     rp.n = nrows(xmat2);

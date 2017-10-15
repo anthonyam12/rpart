@@ -49,44 +49,44 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
     nright = 0;
 
     if (rp.numcat[pvar] > 0) {  /* categorical primary variable */
-	index = tsplit->csplit;
-	for (i = n1; i < n2; i++) {
-	    j = sorts[pvar][i];
-	    if (j < 0)
-		someleft++;     /* missing value */
-	    else
-		switch (index[(int) xdata[pvar][j] - 1]) {
-		case LEFT:
-		    which[j] = leftson;
-		    nleft++;
-		    break;
-		case RIGHT:
-		    which[j] = leftson + 1;
-		    nright++;
-		    break;
-		}
-	}
+    	index = tsplit->csplit;
+    	for (i = n1; i < n2; i++) {
+    	    j = sorts[pvar][i];
+    	    if (j < 0)
+    		    someleft++;     /* missing value */
+    	    else
+        		switch (index[(int) xdata[pvar][j] - 1]) {
+            		case LEFT:
+            		    which[j] = leftson;
+            		    nleft++;
+            		    break;
+            		case RIGHT:
+            		    which[j] = leftson + 1;
+            		    nright++;
+            		    break;
+        		}
+    	}
     } else {
-	psplit = tsplit->spoint;        /* value of split point */
-	extra = tsplit->csplit[0];
-	for (i = n1; i < n2; i++) {
-	    j = sorts[pvar][i];
-	    if (j < 0)
-		someleft++;
-	    else {
-		if (xdata[pvar][j] < psplit)
-		    k = extra;
-		else
-		    k = -extra;
-		if (k == LEFT) {
-		    which[j] = leftson;
-		    nleft++;
-		} else {
-		    which[j] = leftson + 1;
-		    nright++;
-		}
-	    }
-	}
+    	psplit = tsplit->spoint;        /* value of split point */
+    	extra = tsplit->csplit[0];
+    	for (i = n1; i < n2; i++) {
+    	    j = sorts[pvar][i];
+    	    if (j < 0)
+    		    someleft++;
+    	    else {
+        		if (xdata[pvar][j] < psplit)
+        		    k = extra;
+        		else
+        		    k = -extra;
+        		if (k == LEFT) {
+        		    which[j] = leftson;
+        		    nleft++;
+        		} else {
+        		    which[j] = leftson + 1;
+        		    nright++;
+        		}
+    	    }
+    	}
     }
 
     /*
@@ -182,6 +182,8 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
 	    }
 	}
     }
+    
+    
     /*
      * Last part of the work is to update the sorts matrix
      *
@@ -213,7 +215,9 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
      *   skip this process for the primary split variable, as that
      *   portion of "sorts" would remain unchanged.  It's not worth
      *   the bother of checking, however.
+     *
      */
+    
     for (k = 0; k < rp.nvar; k++) {
 	sindex = rp.sorts[k];   /* point to variable k */
 	i1 = n1;

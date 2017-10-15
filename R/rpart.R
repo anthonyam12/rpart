@@ -21,7 +21,7 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
   if (any(attr(Terms, "order") > 1L)) {
 	  stop("Trees cannot handle interaction terms")
   }
-  
+ 
   Y <- model.response(m)
   wt <- model.weights(m)
   if (any(wt < 0)) stop("negative weights not allowed")

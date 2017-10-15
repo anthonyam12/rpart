@@ -121,8 +121,28 @@ void doDelayed(pNode me, int n1, int n2)
     ytemp = rp.ytemp;
     wtemp = rp.wtemp;
     
+    // need to preserve sorts, which, and tempvec in rp
+    int *s_which = (int*) ALLOC(rp.n, sizeof(int));
+    int *s_tempvec = (int*) ALLOC(rp.n, sizeof(int));
+    for(int r = 0; r < rp.n; r++) {
+        s_which[r] = rp.which[r];
+        s_tempvec[r] = rp.tempvec[r];
+    }
+    int *s_sorts = (int *) ALLOC(rp.n * rp.nvar, sizeof(int));
+    memcpy(s_sorts, rp.sorts[0], rp.n * rp.nvar * sizeof(int));
+    
+    /* Helps to understand the sorts array functionality
+    int k = 0;
+    for (int j = 0; j < rp.n; j++) 
+    {
+        kk = rp.sorts[4][j];
+        printf("%d == %5g\n", kk, rp.xdata[4][kk]);
+    } 
+    */
+    
     for(int i = 0; i < rp.nvar; i++) 
     {
+        int nleft = 0, nright = 0;
         index = rp.sorts[i];
         nc = rp.numcat[i];
         /* extract x and y data */
@@ -133,12 +153,19 @@ void doDelayed(pNode me, int n1, int n2)
             /* x data not missing and wt > 0 */
             if (kk >= 0 && rp.wt[kk] > 0) 
             {  
+                // will need to build another xdata array 
+                // for v in nvar: new_xd[v][kk] = xdata[v][kk]
+                // below gives ith column, need to get ALL cols 
+                // for second splits
                 xtemp[k] = rp.xdata[i][kk];
                 ytemp[k] = rp.ydata[kk];
                 wtemp[k] = rp.wt[kk];
+                //printf("%5g, %5g, %5g\n", xtemp[k], *ytemp[k], wtemp[k]);
                 k++;
             }
         }
+        
+        // get y value for a row via *ytemp[k] thus xtemp[i][*] correspondes to *ytemp[i]
         
         (*rp_choose) (k, ytemp, xtemp, nc, rp.min_node, &improve, &split, rp.csplit, me->risk, wtemp);
 
@@ -162,8 +189,35 @@ void doDelayed(pNode me, int n1, int n2)
             for (k = 0; k < nc; k++)
                 bestSplit->csplit[k] = rp.csplit[k];
         }
+        
+        // preserve "me"
+        pNode dummyNode = (pNode) ALLOC(1, nodesize);
+        dummyNode->primary = bestSplit; 
+        
+        // calls below to get counts that go right and left
+        // n1 to n1 + nleft is n1 and n2 for left partition
+        // n1 + nleft to n1 + nleft + nright are n1 and n2 for right partition
+        surrogate(dummyNode, n1, n2); // idk, seg fault without
+        nodesplit(dummyNode, 1, n1, n2, &nleft, &nright); 
+        
+        // reset rp values
+        for (int q = 0; q < rp.nvar; q++) 
+        {
+            for (int r = 0; r < rp.n; r++) 
+            {
+                rp.sorts[q][r] = s_sorts[q * rp.n + r];
+                rp.which[r] = s_which[r];
+                rp.tempvec[r] = s_tempvec[r];
+            }
+        }
+        
+        
+
+        // rp_eval returns the sum squares as the "risk" 
+        // pass in 'n' = number of obvs, vector of y values at this node, wt=weight vector, risk and value
+        // are only updated with ss and mean repectively (value = node->resp_est)
+        
+        // if ss < prev_best_ss
         me->primary = bestSplit;
     }
-    if (me->primary->spoint < 105) 
-        printf("%5g\n", me->primary->spoint);
 }

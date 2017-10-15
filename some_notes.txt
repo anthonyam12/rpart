@@ -1,0 +1,11 @@
+Rpart:
+	- sorts -- sort of the continous variables smallest to largest 
+		- sorts[var_num][i] - gives the variable at the ith location in var_num column.
+			- e.g. TEST_COL
+					1
+					10
+					4
+					15
+				sorts[0][1] (0 = 0th column == TEST_COL) will give the index in the xdata[0] array
+				that corresponds to the value if sorted, in this case sorts[0][1] = 3 = xdata[0][3] = 4
+				(the second spot in the sort array corresponds to the 4th index in the xdata matrix = value 4)
