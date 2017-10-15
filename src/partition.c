@@ -13,7 +13,7 @@
 #include "node.h"
 #include "rpartproto.h"
 
-int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int fromBSplit)
+int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
 {
     pNode me;
     double tempcp;
@@ -35,7 +35,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int
     	for (i = n1; i < n2; i++) {
     	    j = rp.sorts[0][i]; /* any variable would do, use first */
     	    if (j < 0)
-    		j = -(1 + j);   /* if missing, value = -(1+ true index) */
+    		    j = -(1 + j);   /* if missing, value = -(1+ true index) */
     	    rp.wtemp[k] = rp.wt[j];
     	    rp.ytemp[k] = rp.ydata[j];
     	    twt += rp.wt[j];
@@ -71,7 +71,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int
     /*
      * Guess I have to do the split
      */
-    bsplit(me, n1, n2, fromBSplit);
+    bsplit(me, n1, n2);
     if (!me->primary) {
     	/*
     	 * This is rather rare -- but I couldn't find a split worth doing
@@ -99,7 +99,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int
      */
     me->leftson = (pNode) CALLOC(1, nodesize);
     (me->leftson)->complexity = tempcp - rp.alpha;
-    left_split = partition(2 * nodenum, me->leftson, &left_risk, n1, n1 + nleft, fromBSplit);
+    left_split = partition(2 * nodenum, me->leftson, &left_risk, n1, n1 + nleft);
 
     /*
      * Update my estimate of cp, and split the right son.
@@ -113,7 +113,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int
 
     me->rightson = (pNode) CALLOC(1, nodesize);
     (me->rightson)->complexity = tempcp - rp.alpha;
-    right_split = partition(1 + 2 * nodenum, me->rightson, &right_risk, n1 + nleft, n1 + nleft + nright, fromBSplit);
+    right_split = partition(1 + 2 * nodenum, me->rightson, &right_risk, n1 + nleft, n1 + nleft + nright);
 
     /*
      * Now calculate my actual C.P., which depends on children nodes, and

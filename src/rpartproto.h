@@ -7,7 +7,7 @@
 
 pNode branch(pNode tree, int obs);
 
-void bsplit(pNode me, int n1, int n2, int fromBSplit);
+void bsplit(pNode me, int n1, int n2);
 
 void choose_surg(int n1, int n2, int *y, double *x, int *order,
 		 int ncat, double *agreement, double *split, int *csplit,
@@ -32,7 +32,7 @@ void mysort(int start, int stop, double *x, int *cvec);
 
 void nodesplit(pNode me, int nodenum, int n1, int n2, int *nleft, int *nright );
 
-int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2, int fromBSplit);
+int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2);
 
 int print_tree(pNode me, int maxdepth);
 

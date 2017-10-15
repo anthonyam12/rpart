@@ -135,7 +135,7 @@ xval(int n_xval, CpTable cptable_head, int *x_grp,
 	(*rp_init) (k, rp.ytemp, maxcat, errmsg, parms, &temp, 2, rp.wtemp);
 	(*rp_eval) (k, rp.ytemp, xtree->response_est, &(xtree->risk), rp.wtemp);
 	xtree->complexity = xtree->risk;
-	partition(1, xtree, &temp, 0, k, 0);
+	partition(1, xtree, &temp, 0, k);
 	fix_cp(xtree, xtree->complexity);
 
        /*

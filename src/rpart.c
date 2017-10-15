@@ -238,7 +238,7 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     /*
      * Do the basic tree
      */
-    partition(1, tree, &temp, 0, n, 0);
+    partition(1, tree, &temp, 0, n);
     CpTable cptable = (CpTable) ALLOC(1, sizeof(cpTable));
     cptable->cp = tree->complexity;
     cptable->risk = tree->risk;

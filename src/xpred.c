@@ -275,7 +275,7 @@ xpred(SEXP ncat2, SEXP method2, SEXP opt2,
 	(*rp_init) (k, rp.ytemp, maxcat, &errmsg, parms, &ii, 2, rp.wtemp);
 	(*rp_eval) (k, rp.ytemp, xtree->response_est, &(xtree->risk), rp.wtemp);
 	xtree->complexity = xtree->risk;
-	partition(1, xtree, &temp, 0, k, 0);
+	partition(1, xtree, &temp, 0, k);
 	fix_cp(xtree, xtree->complexity);
 
 	//print_tree(xtree, 1, 0, 0, 0);        /* debug line */

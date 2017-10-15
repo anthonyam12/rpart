@@ -16,7 +16,7 @@ void testPrint();
 void doRpartLogic(pNode me, int n1, int n2);
 void doDelayed(pNode me, int n1, int n2);
 
-void bsplit(pNode me, int n1, int n2, int fromBSplit)
+void bsplit(pNode me, int n1, int n2)
 {
     me->primary = (pSplit) NULL;
     if(!rp.delayed) 
@@ -120,6 +120,7 @@ void doDelayed(pNode me, int n1, int n2)
     xtemp = rp.xtemp;
     ytemp = rp.ytemp;
     wtemp = rp.wtemp;
+    double bestSS = 99999999999;
     
     // need to preserve sorts, which, and tempvec in rp
     int *s_which = (int*) ALLOC(rp.n, sizeof(int));
@@ -153,10 +154,6 @@ void doDelayed(pNode me, int n1, int n2)
             /* x data not missing and wt > 0 */
             if (kk >= 0 && rp.wt[kk] > 0) 
             {  
-                // will need to build another xdata array 
-                // for v in nvar: new_xd[v][kk] = xdata[v][kk]
-                // below gives ith column, need to get ALL cols 
-                // for second splits
                 xtemp[k] = rp.xdata[i][kk];
                 ytemp[k] = rp.ydata[kk];
                 wtemp[k] = rp.wt[kk];
@@ -195,10 +192,8 @@ void doDelayed(pNode me, int n1, int n2)
         dummyNode->primary = bestSplit; 
         
         // calls below to get counts that go right and left
-        // n1 to n1 + nleft is n1 and n2 for left partition
-        // n1 + nleft to n1 + nleft + nright are n1 and n2 for right partition
         surrogate(dummyNode, n1, n2); // idk, seg fault without
-        nodesplit(dummyNode, 1, n1, n2, &nleft, &nright); 
+        nodesplit(dummyNode, 1, n1, n2, &nleft, &nright);
         
         // reset rp values
         for (int q = 0; q < rp.nvar; q++) 
@@ -211,13 +206,48 @@ void doDelayed(pNode me, int n1, int n2)
             }
         }
         
+        int l1_start = n1, l1_end = n1 + nleft, l2_start = l1_end, l2_end = l2_start + nright;
+        double leftSS, rightSS;
         
-
-        // rp_eval returns the sum squares as the "risk" 
-        // pass in 'n' = number of obvs, vector of y values at this node, wt=weight vector, risk and value
-        // are only updated with ss and mean repectively (value = node->resp_est)
+        // is this the same as doing each split and checking SS?
+        rp.delayed = 0;
+        dummyNode->leftson = (pNode) CALLOC(1, nodesize);
+        dummyNode->rightson = (pNode) CALLOC(1, nodesize);
+        bsplit(dummyNode->leftson, l1_start, l1_end);
+        bsplit(dummyNode->rightson, l2_start, l2_end);
+        rp.delayed = 1;
         
-        // if ss < prev_best_ss
-        me->primary = bestSplit;
+        // get SS for left and right
+        int obvs = l1_end - l1_start;
+        k = 0;
+        for (int r = l1_start; r < l1_end; r++) 
+        {
+            int idx = rp.sorts[0][r]; /* any variable would do, use first */
+            if (idx < 0)
+                idx = -(1 + idx);   /* if missing, value = -(1+ true index) */
+            rp.wtemp[k] = rp.wt[idx];
+            rp.ytemp[k] = rp.ydata[idx];
+            k++;
+        }
+        (*rp_eval) (obvs, rp.ytemp, dummyNode->leftson->response_est, &leftSS, rp.wtemp);
+        obvs = l2_end - l2_start;
+        k = 0;
+        for (int r = l2_start; r < l2_end; r++) 
+        {
+            int idx = rp.sorts[0][r]; /* any variable would do, use first */
+            if (idx < 0)
+                idx = -(1 + idx);   /* if missing, value = -(1+ true index) */
+            rp.wtemp[k] = rp.wt[idx];
+            rp.ytemp[k] = rp.ydata[idx];
+            k++;
+        }
+        (*rp_eval) (obvs, rp.ytemp, dummyNode->rightson->response_est, &rightSS, rp.wtemp);
+        
+        double thisBestSS = leftSS < rightSS ? leftSS : rightSS;
+        if(thisBestSS < bestSS)
+        {
+            me->primary = bestSplit;
+            bestSS = thisBestSS;
+        }
     }
 }
