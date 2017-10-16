@@ -195,17 +195,6 @@ void doDelayed(pNode me, int n1, int n2)
         surrogate(dummyNode, n1, n2); // idk, seg fault without
         nodesplit(dummyNode, 1, n1, n2, &nleft, &nright);
         
-        // reset rp values
-        for (int q = 0; q < rp.nvar; q++) 
-        {
-            for (int r = 0; r < rp.n; r++) 
-            {
-                rp.sorts[q][r] = s_sorts[q * rp.n + r];
-                rp.which[r] = s_which[r];
-                rp.tempvec[r] = s_tempvec[r];
-            }
-        }
-        
         int l1_start = n1, l1_end = n1 + nleft, l2_start = l1_end, l2_end = l2_start + nright;
         double leftSS, rightSS;
         
@@ -242,6 +231,17 @@ void doDelayed(pNode me, int n1, int n2)
             k++;
         }
         (*rp_eval) (obvs, rp.ytemp, dummyNode->rightson->response_est, &rightSS, rp.wtemp);
+        
+        // reset rp values
+        for (int q = 0; q < rp.nvar; q++) 
+        {
+            for (int r = 0; r < rp.n; r++) 
+            {
+                rp.sorts[q][r] = s_sorts[q * rp.n + r];
+                rp.which[r] = s_which[r];
+                rp.tempvec[r] = s_tempvec[r];
+            }
+        }
         
         double thisBestSS = leftSS < rightSS ? leftSS : rightSS;
         if(thisBestSS < bestSS)
