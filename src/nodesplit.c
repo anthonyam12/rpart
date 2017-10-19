@@ -194,7 +194,7 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
      *       "            4    which[4] = 16 = 2*nodenum    = leftson
      *                   21          21   16
      *                    6           6   17
-     *      "		  7           7   16
+     *      "		      7           7   16
      *                   30          30   17
      *                    8           8   16
      *	sorts[var][12]=	-11    which[11] = 8 = nodenum  (X = missing)
