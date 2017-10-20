@@ -124,13 +124,13 @@ void doDelayed(pNode me, int n1, int n2)
     wtemp = rp.wtemp;
     
     double bestSS = DBL_MAX;
+    double nodeSS = me->risk;   // check that this is right, might just call eval on 'me'
     int leftSS, rightSS;
     double **xdata;
     xdata = (double **) ALLOC(rp.nvar, sizeof(double*));
     
     for(int i = 0; i < rp.nvar; i++) 
     {
-        int nleft = 0, nright = 0;
         index = rp.sorts[i];
         nc = rp.numcat[i];
         /* extract x and y data */
@@ -149,6 +149,7 @@ void doDelayed(pNode me, int n1, int n2)
         // build matrix of all column data (xdata) rather than just this column's data (xtemp)
         for(int j = 0; j < rp.nvar; j++) 
             xdata[j] = (double*) ALLOC(k, sizeof(double));
+        
         k = 0;
         for(int j = n1; j < n2; j++)
         {
@@ -163,16 +164,10 @@ void doDelayed(pNode me, int n1, int n2)
                 k++;
             }
         }
-        
-        //check xdata built correctly
-        if(k < 20) // don't blow up
-            checkXdataMatrix(xdata, ytemp, k);
                 
-
         // get y value for a row via *ytemp[k] thus xtemp[i][*] correspondes to *ytemp[i]
         (*rp_choose) (k, ytemp, xtemp, nc, rp.min_node, &improve, &split, rp.csplit, me->risk, wtemp);
         
-        // NOTE: all were categorical before because of this nc setting stuff
         int splitsize = sizeof(Split) + ((nc == 0 ? 1 : nc) - 20) * sizeof(int); 
         pSplit bestSplit = (pSplit) CALLOC(1, splitsize);
         bestSplit->improve = improve;
@@ -191,7 +186,7 @@ void doDelayed(pNode me, int n1, int n2)
         }
         
         // From Documentation: csplit[0]: 1: <x to the left, -1: <x to the right
-        // Tested: seems to be working
+        // TODO: handle categorical splits**************************************************************
         int rightCount = 0, leftCount = 0;
         for(int j = 0; j < k; j++) 
         {
@@ -210,6 +205,7 @@ void doDelayed(pNode me, int n1, int n2)
                     rightCount++;
             }
         }
+
         // build left and right y data vectors
         double **rightY, **leftY, **leftX, **rightX, *leftWt, *rightWt;
         rightY = (double**) ALLOC(rightCount, sizeof(double*));
@@ -223,7 +219,7 @@ void doDelayed(pNode me, int n1, int n2)
             leftX[j] = (double*) ALLOC(leftCount, sizeof(double));
             rightX[j] = (double*) ALLOC(rightCount, sizeof(double));
         }
-        
+
         rightCount = 0;
         leftCount = 0;
         for(int j = 0; j < k; j++) 
@@ -268,23 +264,27 @@ void doDelayed(pNode me, int n1, int n2)
             }
         }
         
-        // get SS for right (FIX: ydata needs to be 2d);
+        // get SS for right
         double rightSS = getSSSplit(rightX, rightY, rightWt, rightCount);
         // get SS for left
         double leftSS = getSSSplit(leftX, leftY, leftWt, leftCount);
+    
+        // bestSS = min{nodess - (leftSS + rightSS)}, this maximize right and left SS
+        double thisSS = nodeSS - (leftSS + rightSS);
         
-        
-        if(improve > rp.iscale)
-            rp.iscale = improve;
-        
-        /*double thisBestSS = leftSS < rightSS ? leftSS : rightSS;
-        if(thisBestSS < bestSS) // thisbestSS > 0?
-        {*/
-            me->primary = bestSplit;
-            /*bestSS = thisBestSS;
-        }*/
-        
-        free(rightY); free(leftY); free(leftWt); free(rightWt); free(rightX); free(leftX);
+        if(thisSS < bestSS)
+        {
+            if(improve > rp.iscale)
+                rp.iscale = improve;
+            
+            if (improve > (rp.iscale * 1e-10)) 
+            {
+                me->primary = bestSplit;
+                bestSS = thisSS;
+                if((n2-n1) == 1599)
+                    printf("%5g, %d\n", me->primary->spoint, me->primary->var_num);
+            }
+        }
     }
 }
 
@@ -302,22 +302,15 @@ void checkXdataMatrix(double **xdata, double **ydata, int k)
 // Will be done twice for each variable (left and right, L1 and L2)
 double getSSSplit(double **xdata, double **ydata, double *wtdata, int num_obs)
 {
-    // can steal most of this from the rpart logic
-    // for each variable:
-    //      build xtemp from xdata (ytemp and wtemp should be the passed values)
-    //      call rp_choose to get split point
-    //      partition ydata based split point
-    //      get SS (rp_eval or calc indep)
-    //      if SS < bestSS: bestSS = SS
-    // return SS
     double improve;
     double split;
     double risk = 1;
     double *xtemp = (double*) ALLOC(num_obs, sizeof(double));
-    double bestSS = DBL_MAX;
+    double bestSS = 0;
     for (int i = 0; i < rp.nvar; i++) 
     {
-        double thisSS;
+        double leftSS = 0, rightSS = 0;
+        int k = num_obs;
         int nc = rp.numcat[i];
         for(int j = 0; j < num_obs; j++) 
             xtemp[j] = xdata[i][j];
@@ -326,12 +319,83 @@ double getSSSplit(double **xdata, double **ydata, double *wtdata, int num_obs)
         (*rp_choose) (num_obs, ydata, xtemp, nc, rp.min_node, &improve, &split, rp.csplit, risk, wtdata);
         
         // split data on split point
+        // TODO: handle categorical splits**************************************************************
+        int rightCount = 0, leftCount = 0;
+        for(int j = 0; j < k; j++) 
+        {
+            if(rp.csplit[0] > 0) // <x go left
+            {
+                if(xtemp[j] < split) 
+                    leftCount++;
+                else
+                    rightCount++;
+            }
+            else  // <x go right (>x go left)
+            {
+                if(xtemp[j] > split) 
+                    leftCount++;
+                else
+                    rightCount++;
+            }
+        }
+        // didn't find a split
+        if(leftCount == 0 || rightCount == 0)
+            continue;
         
         
-        // calc SS (rp_eval)
+        // build left and right y data vectors
+        double **rightY, **leftY, *leftWt, *rightWt;
+        rightY = (double**) ALLOC(rightCount, sizeof(double*));
+        leftY = (double**) ALLOC(leftCount, sizeof(double*));
+        leftWt = (double*) ALLOC(leftCount, sizeof(double));
+        rightWt = (double*) ALLOC(rightCount, sizeof(double));
+        
+        rightCount = 0;
+        leftCount = 0;
+        for(int j = 0; j < k; j++) 
+        {
+            if(rp.csplit[0] > 0) // <x go left
+            {
+                if(xtemp[j] < split)
+                { 
+                    leftY[leftCount] = ydata[j];
+                    leftWt[leftCount] = wtdata[j];
+                    leftCount++;
+                }
+                else
+                {
+                    rightY[rightCount] = ydata[j];
+                    rightWt[rightCount] = wtdata[j];
+                    rightCount++;
+                }
+            }
+            else  // <x go right (>x go left)
+            {
+                if(xtemp[j] > split)
+                {
+                    leftY[leftCount] = ydata[j];
+                    leftWt[leftCount] = wtdata[j];
+                    leftCount++;
+                }
+                else
+                {
+                    rightY[rightCount] = ydata[j];
+                    rightWt[rightCount] = wtdata[j];
+                    rightCount++;
+                }
+            }
+        }
+        
+        // calc SS (rp_eval) (each side? Yes, and add them. (max{SS_R + SS_L}))
+        double rightMean = 0, leftMean = 0;
+        (*rp_eval) (rightCount, rightY, &rightMean, &rightSS, rightWt);
+        (*rp_eval) (leftCount, leftY, &leftMean, &leftSS, leftWt);
+        
+        
+        if((rightSS + leftSS) > bestSS) 
+            bestSS = (rightSS + leftSS);
         
     }
-    
     return bestSS;
 }
 

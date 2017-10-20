@@ -91,7 +91,6 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
 	    surrogate(me, n1, n2);
     else
 	    me->surrogate = (pSplit) NULL;
-
     nodesplit(me, nodenum, n1, n2, &nleft, &nright);
 
     /*
@@ -155,7 +154,7 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     me->complexity = (me->risk - (left_risk + right_risk)) /
 	(left_split + right_split + 1);
     
-    //printf("nodenum: %d -- cp: %5g <= %5g\n", nodenum, me->complexity, rp.alpha);
+    //printf("nodenum: %d -- cp: %5g <= %5g then no split\n", nodenum, me->complexity, rp.alpha);
     if (me->complexity <= rp.alpha) {
 	/*
 	 * All was in vain!  This node doesn't split after all.
