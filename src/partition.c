@@ -25,9 +25,10 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     int nleft, nright;
     int n;
 
+    //printf("%d : %5g\n", n2 - n1,  splitnode->complexity);
+    
     me = splitnode;
     n = n2 - n1;                /* total number of observations */
-
     if (nodenum > 1) 
     {
     	twt = 0;
@@ -49,7 +50,6 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     	    tempcp = me->complexity;
     } else
 	    tempcp = me->risk;
-
     /*
      * Can I quit now ?
      */
@@ -106,9 +106,9 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
     tempcp = (me->risk - left_risk) / (left_split + 1);
     tempcp2 = (me->risk - (me->leftson)->risk);
     if (tempcp < tempcp2)
-	tempcp = tempcp2;
+	    tempcp = tempcp2;
     if (tempcp > me->complexity)
-	tempcp = me->complexity;
+	    tempcp = me->complexity;
 
     me->rightson = (pNode) CALLOC(1, nodesize);
     (me->rightson)->complexity = tempcp - rp.alpha;
@@ -125,53 +125,54 @@ int partition(int nodenum, pNode splitnode, double *sumrisk, int n1, int n2)
 
     /* Who goes first -- minimum of tempcp, leftson, and rightson */
     if ((me->rightson)->complexity > (me->leftson)->complexity) {
-	if (tempcp > (me->leftson)->complexity) {
-	    /* leftson collapses first */
-	    left_risk = (me->leftson)->risk;
-	    left_split = 0;
-
-	    tempcp = (me->risk - (left_risk + right_risk)) /
-		(left_split + right_split + 1);
-	    if (tempcp > (me->rightson)->complexity) {
-		/* right one goes too */
-		right_risk = (me->rightson)->risk;
-		right_split = 0;
-	    }
-	}
+    	if (tempcp > (me->leftson)->complexity) {
+    	    /* leftson collapses first */
+    	    left_risk = (me->leftson)->risk;
+    	    left_split = 0;
+    
+    	    tempcp = (me->risk - (left_risk + right_risk)) /
+    		(left_split + right_split + 1);
+    	    if (tempcp > (me->rightson)->complexity) {
+        		/* right one goes too */
+        		right_risk = (me->rightson)->risk;
+        		right_split = 0;
+    	    }
+    	}
     } else if (tempcp > (me->rightson)->complexity) {
-	/* right hand child goes first */
-	right_split = 0;
-	right_risk = (me->rightson)->risk;
-
-	tempcp = (me->risk - (left_risk + right_risk)) /
-	    (left_split + right_split + 1);
-	if (tempcp > (me->leftson)->complexity) {
-	    /* left one goes too */
-	    left_risk = (me->leftson)->risk;
-	    left_split = 0;
-	}
+    	/* right hand child goes first */
+    	right_split = 0;
+    	right_risk = (me->rightson)->risk;
+    
+    	tempcp = (me->risk - (left_risk + right_risk)) /
+    	    (left_split + right_split + 1);
+    	if (tempcp > (me->leftson)->complexity) {
+    	    /* left one goes too */
+    	    left_risk = (me->leftson)->risk;
+    	    left_split = 0;
+    	}
     }
+    
     me->complexity = (me->risk - (left_risk + right_risk)) /
 	(left_split + right_split + 1);
-    
+
     //printf("nodenum: %d -- cp: %5g <= %5g then no split\n", nodenum, me->complexity, rp.alpha);
     if (me->complexity <= rp.alpha) {
-	/*
-	 * All was in vain!  This node doesn't split after all.
-	 */
-	free_tree(me, 0);
-	*sumrisk = me->risk;
-	for (i = n1; i < n2; i++) {
-	    j = rp.sorts[0][i];
-	    if (j < 0)
-		j = -(1 + j);
-	    rp.which[j] = nodenum;      /* revert to the old nodenumber */
-	}
-	return 0;               /* return # of splits */
+    	/*
+    	 * All was in vain!  This node doesn't split after all.
+    	 */
+    	free_tree(me, 0);
+    	*sumrisk = me->risk;
+    	for (i = n1; i < n2; i++) {
+    	    j = rp.sorts[0][i];
+    	    if (j < 0)
+    		j = -(1 + j);
+    	    rp.which[j] = nodenum;      /* revert to the old nodenumber */
+    	}
+    	return 0;               /* return # of splits */
     } else {
-	*sumrisk = left_risk + right_risk;
+    	*sumrisk = left_risk + right_risk;
         
-    printf("csplit[0]: %d -- spoint: %5g -- var: %d\n", me->primary->csplit[0], me->primary->spoint, me->primary->var_num);
-	return left_split + right_split + 1;
+        //printf("ret: %d, sumrisk: %5g\n", left_split + right_split + 1, *sumrisk);
+    	return left_split + right_split + 1;
     }
 }

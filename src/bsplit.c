@@ -67,9 +67,14 @@ void doRpartLogic(pNode me, int n1, int n2)
                 k++;
             }
         }
-        
+        if ((n2-n1) == 209 && i == 0)
+            printf("nc: %d, xtemp[0] = %5g, xtemp[k-1] = %5g, k=%d\n", nc, xtemp[0], xtemp[k-1], k);
         if (k == 0 || (nc == 0 && xtemp[0] == xtemp[k - 1]))
+        {
+            if((n2-n1) == 209)
+                printf("here\n");
             continue;           /* no place to split */
+        }
             
             // rpart split function - find best way to partition the dataset
             (*rp_choose) (k, ytemp, xtemp, nc, rp.min_node, &improve, &split, rp.csplit, me->risk, wtemp);

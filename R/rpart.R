@@ -215,7 +215,7 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
   }
 
   ## NB: package adabag depends on 'var' being a factor.
-  if (nsplit == 0L) {                    # tree with no splits
+  if (nsplit == 0L) {                    # tree with no 
   	frame <- data.frame(row.names = 1L,
 	  		    var = "<leaf>",
 		  	    n = rpfit$inode[, 5L],

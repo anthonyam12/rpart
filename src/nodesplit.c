@@ -61,6 +61,7 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
             		    nleft++;
             		    break;
             		case RIGHT:
+            		    printf("categorical");
             		    which[j] = leftson + 1;
             		    nright++;
             		    break;
@@ -71,7 +72,7 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
     	extra = tsplit->csplit[0];
     	for (i = n1; i < n2; i++) {
     	    j = sorts[pvar][i];
-    	    if (j < 0)
+    	    if (j < 0)          // missing value
     		    someleft++;
     	    else {
         		if (xdata[pvar][j] < psplit)
@@ -142,11 +143,12 @@ nodesplit(pNode me, int nodenum, int n1, int n2, int *nnleft, int *nnright)
 		    else
 			k = -extra;
 		    if (k == LEFT) {
-			which[j] = leftson;
-			nleft++;
+		        printf("surrogate\n");
+    			which[j] = leftson;
+    			nleft++;
 		    } else {
-			which[j] = rightson;
-			nright++;
+    			which[j] = rightson;
+    			nright++;
 		    }
 		    someleft--;
 		    break;

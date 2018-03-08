@@ -40,13 +40,12 @@ anovass(int n, double *y[], double *value, double *risk, double *wt)
     	twt += wt[i];
     }
     mean = temp / twt;
-
     ss = 0;
     for (i = 0; i < n; i++) {
     	temp = *y[i] - mean;
     	ss += temp * temp * wt[i];
     }
-
+    
     *value = mean;
     *risk = ss;
 }
@@ -116,12 +115,12 @@ void anova(int n, double *y[], double *x, int nclass,
 		}
 	    }
 	}
-
 	*improve = best / myrisk;
 	if (best > 0) {         /* found something */
 	    csplit[0] = direction;
 	    *split = (x[where] + x[where + 1]) / 2;
 	}
+	
     }
     /*
      * Categorical predictor

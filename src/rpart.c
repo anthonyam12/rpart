@@ -252,11 +252,14 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
     {
 	      make_cp_list(tree, tree->complexity, cptable);
 	      make_cp_table(tree, tree->complexity, 0);
+	      printf("%d\n", rp.num_unique_cp);
+	      
 	      if (xvals > 1) 
 	      {
 	          xval(xvals, cptable, xgrp, maxcat, &errmsg, parms, savesort);
 	      }
     }
+
     /*
      * all done, create the return list for R
      * first the cp table
@@ -356,6 +359,7 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
 	          {
 		            if (iinode[0][j] == k) 
 		            {
+		                // printf("%d %d %d\n", k, nodecount, iinode[0][j]);
 		                rp.which[i] = j + 1;
 		                break;
 		            }
@@ -363,6 +367,7 @@ SEXP rpart(SEXP ncat2, SEXP method2, SEXP opt2,
 	          k /= 2;
 	      } while (j >= nodecount);
     }
+
 
     /* Create the output list */
     int nout = catcount > 0 ? 7+1 : 6+1;

@@ -37,43 +37,42 @@ branch(pNode tree, int obs)
     tsplit = me->primary;
     j = tsplit->var_num;
     if (R_FINITE(xdata[j][obs])) {
-	if (rp.numcat[j] == 0) {        /* continuous */
-	    dir = (xdata[j][obs] < tsplit->spoint) ?
-		tsplit->csplit[0] : -tsplit->csplit[0];
-	    goto down;
-	} else {                /* categorical predictor */
-	    category = (int) xdata[j][obs];     /* factor predictor -- which
-						 * level? */
-	    dir = (tsplit->csplit)[category - 1];
-	    if (dir)
-		goto down;
-	}
+    	if (rp.numcat[j] == 0) {        /* continuous */
+    	    dir = (xdata[j][obs] < tsplit->spoint) ? tsplit->csplit[0] : -tsplit->csplit[0];
+    	    goto down;
+    	} else {                /* categorical predictor */
+    	    category = (int) xdata[j][obs];     /* factor predictor -- which
+    						 * level? */
+    	    dir = (tsplit->csplit)[category - 1];
+    	    if (dir)
+    		goto down;
+    	}
     }
     if (rp.usesurrogate == 0)
-	return NULL;
+	    return NULL;
    /*
     * use the surrogates
     */
     for (tsplit = me->surrogate; tsplit; tsplit = tsplit->nextsplit) {
-	j = tsplit->var_num;
-	if (R_FINITE(xdata[j][obs])) {  /* not missing */
-	    if (rp.numcat[j] == 0) {
-		dir = (rp.xdata[j][obs] < tsplit->spoint) ?
-		    tsplit->csplit[0] : -tsplit->csplit[0];
-		goto down;
-	    } else {
-		category = (int) xdata[j][obs]; /* factor predictor -- which
-						 * level */
-		dir = (tsplit->csplit)[category - 1];
-		if (dir)
-		    goto down;
-	    }
-	}
+    	j = tsplit->var_num;
+    	if (R_FINITE(xdata[j][obs])) {  /* not missing */
+    	    if (rp.numcat[j] == 0) {
+    		dir = (rp.xdata[j][obs] < tsplit->spoint) ?
+    		    tsplit->csplit[0] : -tsplit->csplit[0];
+    		goto down;
+    	    } else {
+    		category = (int) xdata[j][obs]; /* factor predictor -- which
+    						 * level */
+    		dir = (tsplit->csplit)[category - 1];
+    		if (dir)
+    		    goto down;
+    	    }
+    	}
     }
 
 
     if (rp.usesurrogate < 2)
-	return NULL;
+	    return NULL;
     /*
      * split it by default
      */
