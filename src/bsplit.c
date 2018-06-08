@@ -67,12 +67,10 @@ void doRpartLogic(pNode me, int n1, int n2)
                 k++;
             }
         }
-        if ((n2-n1) == 209 && i == 0)
-            printf("nc: %d, xtemp[0] = %5g, xtemp[k-1] = %5g, k=%d\n", nc, xtemp[0], xtemp[k-1], k);
+        //if ((n2-n1) == 209 && i == 0)
+        //    printf("nc: %d, xtemp[0] = %5g, xtemp[k-1] = %5g, k=%d\n", nc, xtemp[0], xtemp[k-1], k);
         if (k == 0 || (nc == 0 && xtemp[0] == xtemp[k - 1]))
         {
-            if((n2-n1) == 209)
-                printf("here\n");
             continue;           /* no place to split */
         }
             
@@ -286,8 +284,8 @@ void doDelayed(pNode me, int n1, int n2)
             {
                 me->primary = bestSplit;
                 bestSS = thisSS;
-                if((n2-n1) == 1599)
-                    printf("%5g, %d\n", me->primary->spoint, me->primary->var_num);
+                //if((n2-n1) == 1599)
+                //    printf("%5g, %d\n", me->primary->spoint, me->primary->var_num);
             }
         }
     }
@@ -296,10 +294,10 @@ void doDelayed(pNode me, int n1, int n2)
 // ensure matrices are build correctly
 void checkXdataMatrix(double **xdata, double **ydata, int k)
 {
-    for(int j = 0; j < k; j++) // ydata[j] == xdata[j][*]?
-        printf("y=%5g -- x = %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g\n",
-               *ydata[j], xdata[0][j], xdata[1][j], xdata[2][j], xdata[3][j], xdata[4][j], 
-                xdata[5][k], xdata[6][j], xdata[7][j], xdata[8][j], xdata[9][j], xdata[10][j]);
+    //for(int j = 0; j < k; j++) // ydata[j] == xdata[j][*]?
+       // printf("y=%5g -- x = %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g, %5g\n",
+        //       *ydata[j], xdata[0][j], xdata[1][j], xdata[2][j], xdata[3][j], xdata[4][j], 
+        //        xdata[5][k], xdata[6][j], xdata[7][j], xdata[8][j], xdata[9][j], xdata[10][j]);
 }
 
 

@@ -17,6 +17,7 @@ rpart <- function(formula, data, weights, subset, na.action = na.rpart, method,
       m <- eval.parent(temp)
   }
 
+  print(attr(m,"terms"))
   Terms <- attr(m, "terms")
   if (any(attr(Terms, "order") > 1L)) {
 	  stop("Trees cannot handle interaction terms")
